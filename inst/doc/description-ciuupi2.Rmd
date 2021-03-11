@@ -1,0 +1,62 @@
+---
+title: "description-ciuupi2"
+author: "Nishika Ranathunga"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{description-ciuupi2}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Description of the Kabaila & Giri (2009) confidence interval that utilizes uncertain prior information (CIUUPI)
+
+Suppose that $y$ is a random $n$-vector of responses satisfying $y = X \beta + \varepsilon$ where $X$ is a known $n \times p$ matrix with linearly independent columns, $\beta$ is an unknown parameter $p$-vector, and  $\varepsilon \sim N(0, \, \sigma^2 \, I)$, with $\sigma^2$ an unknown positive parameter. Suppose that the parameter of interest is $\theta = a^{\top} \beta$ and that there is uncertain prior information that $\tau = c^{\top} \beta$ takes the value $t$, where $a$ and $c$ are specified linearly independent nonzero $p$-vectors and $t$ is a specified number.  This package computes a confidence interval, with minimum coverage $1 - \alpha$, for $\theta$ that utilizes the uncertain prior information that $\tau = t$ through desirable expected length properties.
+
+
+Let $\hat{\beta}$ denote the least squares estimator of $\beta$.  Then $\hat{\theta} = a^{\top} \hat{\beta}$ and $\widehat{\tau} = c^{\top} \hat{\beta} - t$ are the least squares estimators of $\theta$ and $\tau$, respectively.  Let $v_{\theta} = \text{Var}(\hat{\theta})/\sigma^2$ and $v_{\tau} = \text{Var}(\hat{\tau})/\sigma^2$. Also let $\widehat{\sigma}^2 = \big(y - X \widehat{\beta}\big)^{\top}
+\big(y - X \widehat{\beta}\big) / m$, where $m = n-p$. 
+Note that $\widehat{\sigma} / \sigma$ has the same distribution
+as $\sqrt{Q/m}$, where $Q \sim \chi_m^2$.
+Now 
+let $\gamma = (\tau - t) \big/ \big(\sigma v_{\tau}^{1/2} \big)$
+and
+$\widehat{\gamma} 
+= (\widehat{\tau} - t) \big/ \big(\widehat{\sigma} v_{\tau}^{1/2} \big)$.
+The $1 - \alpha$ confidence interval for $\theta$ that utilizes the uncertain prior information that $\tau = t$ has the form
+$$
+\text{CI}(b,s) = \left[ \hat{\theta} - v_{\theta}^{1/2} \, \hat{\sigma} \, b(\hat{\gamma}) - v_{\theta}^{1/2} \, \hat{\sigma} \, s(\hat{\gamma}), \, \hat{\theta} - v_{\theta}^{1/2} \, \hat{\sigma} \, b(\hat{\gamma}) + v_{\theta}^{1/2} \, \hat{\sigma} \, s(\hat{\gamma}) \right],
+$$
+
+where $b$ is an odd continuous function that takes the value $0$ for $|x| \geq d$, and $s$ is an even continuous function that takes the value $t_{m, 1-\alpha/2}$ for all $|x| \geq d$, where $d$ is a sufficiently large positive number, chosen by ciuupi2, and $t_{m, 1-\alpha/2}$ is the $1 - \alpha/2$ quantile of the $t_m$ distribution. The values of $b(x)$ and $s(x)$ for $x \in [-d,d]$ are determined by the vector
+$\big(b(d/6), b(2d/6), \dots, b(5d/6), s(0), s(d/6), \dots, s(5d/6)\big)$ through either natural (default) or clamped cubic spline interpolation.
+
+
+The usual confidence interval for $\theta$, with coverage $1 - \alpha$, is
+$$
+\left[ \hat{\theta} - t_{m, 1-\alpha/2} \, v_{\theta}^{1/2} \, \hat{\sigma}, \, \hat{\theta} + t_{m, 1-\alpha/2} \, v_{\theta}^{1/2} \, \hat{\sigma} \right].
+$$
+Kabaila & Giri (2009) define the scaled expected length of the confidence interval $\text{CI}(b,s)$ to be the expected length of this interval divided by the expected length of the usual confidence interval for $\theta$, with coverage $1 - \alpha$. The desired scaled expected length properties include the property that the gain  when the prior information is correct, as measured by $1 - (\text{scaled expected length at } \gamma = 0)$, is equal to the maximum possible loss when the prior information happens to be incorrect, as measured by $\text{maximum of the scaled expected length } - 1$.
+
+
+The Kabaila & Giri (2009) confidence interval is found by computing the value of the vector $\big(b(d/6), b(2d/6), \dots, b(5d/6), s(0), s(d/6), \dots, s(5d/6)\big)$
+so that the confidence interval has 
+minimum coverage probability $1 - \alpha$ and the desired expected length properties.  This numerical nonlinear constrained optimization is carried out using `slsqp` function in the nloptr package and the computationally convenient formulas derived by Kabaila & Giri (2009).
+
+
+## Functions in this package
+
+The objective function, used in the nonlinear constrained optimization, based on the first definition (put forward by Kabaila & Giri (2009)) of the scaled expected length of the confidence interval $\text{CI}(b,s)$ is `obj = 1` (default). A second (new) definition of the scaled expected length of the confidence interval $\text{CI}(b,s)$ is the expected value of the ratio of the length of the confidence interval $\text{CI}(b,s)$ divided by the length of the usual confidence interval for $\theta$, with coverage $1 - \alpha$, computed from the same data. The objective function, used in the nonlinear constrained optimization, based on the second definition of the scaled expected length of the confidence interval $\text{CI}(b,s)$ is `obj = 2`.
+
+
+The function `bsciuupi2` is used to compute the vector $\big(b(d/6), b(2d/6), \dots, b(5d/6), s(0), s(d/6), \dots, s(5d/6)\big)$ that specifies the Kabaila and Giri (2009) confidence interval that utilizes the uncertain prior information. Once this vector has been computed, the functions $b$ and $s$ for this confidence interval can be evaluated using `bsspline2`.
+
+
+For given $\alpha$, $m$, $\rho$, the coverage probability and scaled expected length of the Kabaila & Giri (2009) confidence interval are even functions of the unknown parameter $\gamma$.  The coverage probability of this confidence interval can be evaluated using `cpciuupi2`. The first and the second definitions of the scaled expected length of this  confidence interval can be evaluated using `sel1ciuupi2` and `sel2ciuupi2`, respectively.
+
+
+
+## Reference
+Kabaila, P. and Giri, R. (2009).  Confidence intervals in regression utilizing prior information. Journal of Statistical Planning and Inference, 139, 3419-3429.
+
+

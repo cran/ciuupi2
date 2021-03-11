@@ -1,0 +1,151 @@
+#' Compute the vector (b(d/6),...,b(5d/6),s(0),...,s(5d/6)) that specifies the
+#' Kabaila & Giri (2009) CIUUPI
+#'
+#' Compute the vector (b(d/6),...,b(5d/6),s(0),...,s(5d/6)) that specifies the
+#' Kabaila and Giri (2009) confidence interval that utilizes uncertain prior
+#' information (CIUUPI) and has minimum coverage 1 - \code{alpha}.
+#'
+#' @param alpha The minimum coverage probability is 1 - \code{alpha}
+#' @param m Degrees of freedom \code{n - p}
+#' @param rho A known correlation
+#' @param obj Equal to 1 (default) for the first definition of the scaled
+#'   expected length or 2 for the second definition of the scaled expected
+#'   length
+#' @param natural Equal to 1 (default) if the functions b and s are found by
+#'   natural cubic spline interpolation or 0 if these functions are found by
+#'   clamped cubic spline interpolation in the interval [-d, d]
+#'
+#' @return The vector \eqn{(b(d/6), b(2d/6), \dots, b(5d/6), s(0), s(d/6),
+#'   \dots, s(5d/6))} that specifies the Kabaila & Giri (2009) CIUUPI, with
+#'   minimum coverage 1 - \code{alpha}.
+#'
+#' @details Suppose that \deqn{y = X \beta + \epsilon} where \eqn{y} is a random
+#'   \eqn{n}-vector of responses, \eqn{X} is a known \eqn{n} by \eqn{p} matrix
+#'   with linearly independent columns, \eqn{\beta} is an unknown parameter
+#'   \eqn{p}-vector and \eqn{\epsilon} is the random error with components that
+#'   are independent and identically normally distributed with zero mean and
+#'   unknown variance. The parameter of interest is \eqn{\theta = } \code{a}'
+#'   \eqn{\beta}. The uncertain prior information is that \eqn{\tau = }
+#'   \code{c}' \eqn{\beta} takes the value \code{t}, where \code{a} and \code{c}
+#'   are specified linearly independent vectors nonzero \eqn{p}-vectors and
+#'   \code{t} is a specified number. \code{rho} is the known correlation between
+#'   the least squares estimators of \eqn{\theta} and \eqn{\tau}. It is
+#'   determined by the \eqn{n} by \eqn{p} design matrix X and the
+#'   \eqn{p}-vectors a and c using \code{\link{find_rho}}.
+#'
+#'   The confidence interval for \eqn{\theta}, with minimum coverage probability
+#'   \code{1 - alpha}, that utilizes the uncertain prior information that
+#'   \eqn{\tau = } \code{t} belongs to a class of confidence intervals indexed
+#'   by the functions b and s. The function b is an odd continuous function and
+#'   the function s is an even continuous function. In addition, b(x)=0 and s(x)
+#'   is equal to the \eqn{1 - \alpha/2} quantile of the \eqn{t} distribution
+#'   with \code{m} degrees of freedom for all |x| greater than or equal to d,
+#'   where d is a sufficiently large positive number (chosen by the function
+#'   \code{bsciuupi2}). The values of these functions in the interval
+#'   \eqn{[-d,d]} are specified by the vectors \eqn{(b(d/6), b(2d/6), \dots,
+#'   b(5d/6))} and \eqn{(s(0), s(d/6), \dots, s(5d/6))} as follows. By
+#'   assumption, \eqn{b(0)=0} and \eqn{b(-i)=-b(i)} and \eqn{s(-i)=s(i)} for
+#'   \eqn{i=d/6,...,d}. The values of \eqn{b(x)} and \eqn{s(x)} for any \eqn{x}
+#'   in the interval \eqn{[-d,d]} are found using cube spline interpolation for
+#'   the given values of \eqn{b(i)} and \eqn{s(i)} for
+#'   \eqn{i=-d,-5d/6,...,0,d/6,...,5d/6,d}. The choices of \eqn{d} for \eqn{m =
+#'   1, 2} and \eqn{>2} are \eqn{d=20, 10} and \eqn{6}, respectively.
+#'
+#'   The vector  \eqn{(b(d/6), b(2d/6), \dots, b(5d/6), s(0), s(d/6), \dots,
+#'   s(5d/6))} is found by numerical nonlinear constrained optimization so that
+#'   the confidence interval has minimum coverage probability \code{1 - alpha}
+#'   and utilizes the uncertain prior information that \eqn{\tau = } t through
+#'   its desirable expected length properties. The optimization is performed
+#'   using the \code{slsqp} function in the \code{nloptr} package.
+#'
+#'   The first definition of the scaled expected length of the Kabaila and
+#'   Giri(2009) CIUUPI is the expected length of this confidence interval
+#'   divided by the expected length of the usual confidence interval with
+#'   coverage probability \code{1 - alpha}. The second definition of the scaled
+#'   expected length of the Kabaila and Giri(2009) CIUUPI is the expected value
+#'   of the ratio of the length of this confidence interval divided by the
+#'   length of the usual confidence interval, with coverage probability \code{1
+#'   - alpha}, computed from the same data.
+#'
+#'   In the examples, we continue with the same 2 x 2 factorial example
+#'   described in the documentation for \code{\link{find_rho}}.
+#'
+#' @seealso \code{\link{find_rho}}
+#'
+#' @references Kabaila, P. and Giri, R. (2009).  Confidence intervals in
+#'   regression utilizing prior information. Journal of Statistical Planning and
+#'   Inference, 139, 3419-3429.
+#'
+#' @examples
+#' # Compute the vector (b(d/6),...,b(5d/6),s(0),...,s(5d/6)) that specifies the
+#' # Kabaila & Giri (2009) CIUUPI, with minimum coverage 1 - alpha,
+#' # for the first definition of the scaled expected length (default)
+#' # for given alpha, m and rho (takes about 30 mins to run):
+#' \donttest{
+#' bsvec <- bsciuupi2(alpha = 0.05, m = 8, rho = -0.7071068)
+#' }
+#'
+#' # The result bsvec is (to 7 decimal places) the following:
+#' # c(-0.0287487, -0.2151595, -0.3430403, -0.3125889, -0.0852146,
+#' #    1.9795390,  2.0665414,  2.3984471,  2.6460159,  2.6170066,  2.3925494)
+#'
+#'
+#' @export
+
+bsciuupi2 <- function(alpha, m, rho, obj = 1, natural = 1){
+
+  # Specify the values of the inputs to other functions
+  n.iter <- 5
+  n.ints <- 6
+  eps <- 10^{-7}
+  d <- choice_d(m)$d
+  gams <- choice_d(m)$gams
+
+  if(m==1 | m==2) {
+    N <- 17
+    n.nodes <- 10
+  } else  {
+    N <- 9
+    n.nodes <- 5
+  }
+
+  # Set t.alpha for m and alpha
+  t.alpha <- stats::qt(1 - alpha/2, m)
+
+  # Find the nodes and weights of the legendre quadrature
+  quad.info <- statmod::gauss.quad(n.nodes, kind="legendre")
+  nodes <- quad.info$nodes
+  weights <- quad.info$weights
+
+  # Specify where the knots for b and s are located
+  # as inputs to other functions
+  knots <- seq(0, d, by = d/n.ints)
+  knots.all <- seq(-d, d, by = d/n.ints)
+
+  # Specify the values of the inputs to compute the
+  # outer integral in coverage probability
+  h <- OuterPara(m, nu=m+1, N, eps)$h
+  wvec <- OuterPara(m, nu=m+1, N, eps)$wvec
+  psinu.zvec <- OuterPara(m, nu=m+1, N, eps)$psinu.zvec
+  cons <- OuterPara(m, nu=m+1, N, eps)$cons1
+
+  # Find a starting value for the optimization problem
+  start.vec <- startOptim(n.ints=n.ints, t.alpha=t.alpha)
+
+  cat("Computing the bs vector that specifies the Kabaila and Giri CI... ")
+
+  lambda <- compute_lambda(n.iter, rho, alpha, t.alpha, gams,
+                           d, m, n.ints, N, eps, knots, knots.all, nodes,
+                           weights, natural, obj, start.vec)
+
+  new.par <- optimize_knots(lambda, rho, alpha, t.alpha, gams, d, m,
+                            n.ints, knots, knots.all, nodes, weights,  wvec,
+                            psinu.zvec, h, cons, natural, obj, start.vec)
+
+
+  cat("DONE", "\n")
+
+  out <- new.par
+
+}
+
