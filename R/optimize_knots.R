@@ -46,18 +46,19 @@ optimize_knots <- function(lambda, rho, alpha, t.alpha, gams, d, m,
 
   # Make the objective function a function of one argument, y
   if (obj == 1) {
-  obj_fun <- functional::Curry(objective1, lambda = lambda, m = m, n.ints = n.ints,
-                                 knots = knots, knots.all = knots.all, t.alpha = t.alpha,
-                                 nodes = nodes, weights = weights, natural = natural)
+    obj_fun <- function(y) objective1(y, lambda = lambda, m = m, n.ints = n.ints,
+                                      knots = knots, knots.all = knots.all, t.alpha = t.alpha,
+                                      nodes = nodes, weights = weights, natural = natural)
   } else {
-  obj_fun <- functional::Curry(objective2, lambda = lambda, m = m, n.ints = n.ints,
-                                 knots = knots, knots.all = knots.all, t.alpha = t.alpha,
-                                 nodes = nodes, weights = weights, natural = natural)
+    obj_fun <- function(y) objective2(y, lambda = lambda, m = m, n.ints = n.ints,
+                                      knots = knots, knots.all = knots.all, t.alpha = t.alpha,
+                                      nodes = nodes, weights = weights, natural = natural)
   }
 
-
-  # Make the constraint function a function of one argument, y
-  cons_fun <- functional::Curry(constraints_slsqp_trapez, gams = gams, rho = rho,
+  # Make the constraint function a function of one argument, y.
+  # The negative sign reformulates from hin >= 0 (old nloptr convention)
+  # to hin <= 0 (new nloptr convention).
+  cons_fun <- function(y) -constraints_slsqp_trapez(y, gams = gams, rho = rho,
                                 n.ints = n.ints, knots = knots, knots.all = knots.all,
                                 alpha = alpha, t.alpha = t.alpha, nodes = nodes,
                                 weights = weights, wvec = wvec, psinu.zvec = psinu.zvec,
@@ -65,7 +66,7 @@ optimize_knots <- function(lambda, rho, alpha, t.alpha, gams, d, m,
 
   # Find the values of the knots using the optimization function
   res <- nloptr::slsqp(start.vec, obj_fun, hin = cons_fun, lower = low,
-               upper = up, nl.info = FALSE)
+               upper = up, nl.info = FALSE, deprecatedBehavior = FALSE)
   new.par <- res$par
 
   # Output the vector with knot values which specifies the new

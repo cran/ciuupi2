@@ -1,4 +1,4 @@
-66214b28b6d88f81651bdb137c0c283e *DESCRIPTION
+f099bdb637462d1020ecce3ba7ca7772 *DESCRIPTION
 82f1c40026d51905275f7702454fc0be *NAMESPACE
 703112660b45bac7a312eac1123b11d5 *NEWS.md
 80c7eaac113c4bb9d69d1f656939bee2 *R/Func_psi_nu.R
@@ -28,7 +28,7 @@ bb241fb7556e1cad2c59cc624146fc4e *R/cpciuupi2.R
 71c8b852d9dbf1236344f4bb02135602 *R/integrand_obj2.R
 3fae734d7a1be3277af020ee38800f7d *R/objective1.R
 373cc467f88c9cdb75a821b403c3c1b4 *R/objective2.R
-f6a0707815b67bd6f38803d632d7ed43 *R/optimize_knots.R
+52d8eb0cf4b75ae092085b45568583be *R/optimize_knots.R
 14ff53eaaba74d598395e579a8bafc6e *R/sel1ciuupi2.R
 aaadbbe8774b52878baaeee413b4f9d3 *R/sel2ciuupi2.R
 858369fbe6093a6a6b5ac7516e61b2db *R/spline_b.R
@@ -36,9 +36,9 @@ aaadbbe8774b52878baaeee413b4f9d3 *R/sel2ciuupi2.R
 b21bfbeb42defe20bebb239c1055a775 *R/startOptim.R
 3829cb8c51a2e3f07c1eb34a33785a20 *R/transf.R
 0934f146d1d6c62b5a358f3fe93be933 *README.md
-3a27785492a40028e154721cdc999457 *build/vignette.rds
+867a3028945a4ac6b21b4ae54b293c60 *build/vignette.rds
 94dd012f71efba2de949bc4ada1a984c *inst/doc/description-ciuupi2.Rmd
-086a33092887bd86015a633a56ae012f *inst/doc/description-ciuupi2.html
+d522ea9084b5c32f0e0b414dc3acddb9 *inst/doc/description-ciuupi2.html
 209c0da8fa271c1ebb0f17abbb4f0a94 *man/bsciuupi2.Rd
 8dc41b6756964e02ec359c6cb438d838 *man/bsspline2.Rd
 2a6c0edec96f9267f47544d98dde74c5 *man/cistandard2.Rd
